@@ -1,38 +1,57 @@
-# import numpy as np
-# import face_recognition
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-# gbs_image = face_recognition.load_image_file("./faceimg/GBS_02.jpg")
-# gbs_face_encoding = face_recognition.face_encodings(gbs_image)[0]
+import cv2
+from PIL import Image, ImageTk
+import face_recognition
 
-# known_face_names = [ ]
-# known_face_encodings = [ ]
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(640, 480)
+        Dialog.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.OpenHandCursor))
+        self.showCamera = QtWidgets.QGraphicsView(Dialog)
+        self.showCamera.setGeometry(QtCore.QRect(20, 20, 390, 440))
+        self.showCamera.setObjectName("showCamera")
+        self.pushButton = QtWidgets.QPushButton(Dialog)
+        self.pushButton.setGeometry(QtCore.QRect(430, 370, 190, 90))
+        self.pushButton.setObjectName("pushButton")
+        self.name_input = QtWidgets.QTextEdit(Dialog)
+        self.name_input.setGeometry(QtCore.QRect(430, 180, 130, 30))
+        self.name_input.setObjectName("name_input")
+        self.name_label = QtWidgets.QLabel(Dialog)
+        self.name_label.setGeometry(QtCore.QRect(430, 150, 70, 30))
+        self.name_label.setObjectName("name_label")
+        self.signup_label = QtWidgets.QLabel(Dialog)
+        self.signup_label.setGeometry(QtCore.QRect(470, 120, 120, 40))
+        self.signup_label.setObjectName("signup_label")
+        self.name_check = QtWidgets.QPushButton(Dialog)
+        self.name_check.setGeometry(QtCore.QRect(570, 180, 50, 30))
+        self.name_check.setObjectName("name_check")
+        self.showTime = QtWidgets.QLCDNumber(Dialog)
+        self.showTime.setGeometry(QtCore.QRect(420, 30, 200, 40))
+        self.showTime.setObjectName("showTime")
+        self.pushButton_2 = QtWidgets.QPushButton(Dialog)
+        self.pushButton_2.setGeometry(QtCore.QRect(430, 220, 190, 30))
+        self.pushButton_2.setObjectName("pushButton_2")
 
-# # name_list에 있는 이름들을 읽어와서 known_face_names에 저장
-# with open('name_list.txt', "r", encoding="UTF-8") as name_list:
-# 		lst = name_list.readlines()
-# 		for name in lst:
-# 			name = name.strip()
-# 			known_face_names.append(name)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-# # with open('./facencod/encode.txt', 'w') as encode:
-# #     lst = gbs_face_encoding.tolist()
-# #     for code in lst:
-# #         encode.write(str(code) +'\n')
-
-# with open('./facencod/encode.txt', "r", encoding="UTF-8") as encode:
-#     new_lst = []
-#     lst = encode.readlines()
-#     for code in lst:
-#         new_lst.append(code.strip())
-#     known_face_encodings.append(np.array(new_lst))
+    def retranslateUi(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        self.pushButton.setText(_translate("Dialog", "Login"))
+        self.name_label.setText(_translate("Dialog", "Name"))
+        self.signup_label.setText(_translate("Dialog", "<html><head/><body><p align=\"center\"><span style=\" font-size:14pt;\">Sign Up</span></p></body></html>"))
+        self.name_check.setText(_translate("Dialog", "Check"))
+        self.pushButton_2.setText(_translate("Dialog", "Take Photo"))
 
 
-# print(known_face_names)
-# print(known_face_encodings)
-
-
-a = 0
-
-a+=1
-
-print(a)
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Dialog = QtWidgets.QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(Dialog)
+    Dialog.show()
+    sys.exit(app.exec())
