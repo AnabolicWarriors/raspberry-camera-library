@@ -101,24 +101,19 @@ for file in encoding_file_list:
 
 
 
-
+d_name = 'name'
 def detect():
 	if len(known_face_encodings) == 0:
 		msg.showerror("에러","인식된 얼굴이 없습니다.")
 		return
-
-	global time_count
-
-	detect_button = True
-	sf_button = False
 
 	# Grab a single frame of video
 	ret, frame = cap.read()
 
 	# Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
 	rgb_frame = frame[:, :, ::-1]
-	rgb_frame = cv2.resize(rgb_frame, None, fx=0.4, fy=0.4)
-	
+	#rgb_frame = cv2.resize(rgb_frame, None, fx=0.4, fy=0.4)
+
 	# Find all the faces and face enqcodings in the frame of video
 	face_locations = face_recognition.face_locations(rgb_frame)
 	face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
@@ -140,38 +135,19 @@ def detect():
 		best_match_index = np.argmin(face_distances)
 		if matches[best_match_index]:
 			name = known_face_names[best_match_index]
-
-		# Draw a box around the face
-		cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-
-		# Draw a label with a name below the face
-		cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-		font = cv2.FONT_HERSHEY_DUPLEX
-		cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-
-	# Display the resulting image
-	#cv2.imshow('Video', frame)
-
 	
 	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
 	frame = frame[:, :, ::-1]
 
-	img = cv2.resize(frame, None, fx=0.4, fy=0.4)
+	img = cv2.resize(frame, None, fx=0.5, fy=0.5)
 	img = Image.fromarray(frame)
 	imgtk = ImageTk.PhotoImage(image = img)
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
 
-	if detect_button == True and sf_button == False:
-		webcam_label.after(20, detect)
-		
-		webcam_label.after(1000, time_count_plus)
-	
-	elif time_count >= 3:
-		print(name + '이 인식되었습니다.')
-		cap.release()
-	
-	else: return
+	webcam_label.after(1000, detect)
+
+	detected_name.configure(text=name+"님 반갑습니다.")
 
 def take_Photo():
 	# 사진 촬영
@@ -233,6 +209,16 @@ name_Check = Button(window, text="check",
 					width=5, activebackground="Red",
 					font=('times', 10, ' bold '))
 name_Check.place(x=100, y=160)
+
+
+
+detected_name = Label(window, text="반갑습니다.",
+ 			height=3, fg="green",
+ 			bg="white", font=('times', 15, ' bold '))
+detected_name.place(x=20, y=200)
+
+
+
 
 takePhoto = Button(window, text="Take photo",
 				   fg="white", bg="green", command=take_Photo,
