@@ -50,8 +50,6 @@ webcam_label.place(x=200, y=100)
 cap = cv2.VideoCapture(0)
 
 def show_frame():
-	detect_button = False
-	sf_button = True
 
 	cv2image = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2RGB)
     
@@ -63,10 +61,8 @@ def show_frame():
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
 
-	if detect_button == False and sf_button == True:
-		webcam_label.after(20, show_frame)
-	else: return
-	
+	webcam_label.after(20, show_frame)
+
 def no_fnc():
 	pass
 
@@ -101,12 +97,12 @@ for file in encoding_file_list:
 
 
 
-d_name = 'name'
+d_name = 'null'
 def detect():
-	if len(known_face_encodings) == 0:
-		msg.showerror("에러","인식된 얼굴이 없습니다.")
-		return
 
+	global d_name
+	name = d_name
+	
 	# Grab a single frame of video
 	ret, frame = cap.read()
 
@@ -123,7 +119,7 @@ def detect():
 		# See if the face is a match for the known face(s)
 		matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
 
-		name = "Unknown"
+		d_name = "Unknown"
 
 		# If a match was found in known_face_encodings, just use the first one.
 		# if True in matches:
@@ -134,7 +130,7 @@ def detect():
 		face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
 		best_match_index = np.argmin(face_distances)
 		if matches[best_match_index]:
-			name = known_face_names[best_match_index]
+			d_name = known_face_names[best_match_index]
 	
 	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
 	frame = frame[:, :, ::-1]
@@ -145,9 +141,13 @@ def detect():
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
 
-	webcam_label.after(1000, detect)
-
 	detected_name.configure(text=name+"님 반갑습니다.")
+	
+	if name == 'null':
+		webcam_label.after(1000, detect)
+
+	else: return
+	
 
 def take_Photo():
 	# 사진 촬영
