@@ -9,21 +9,16 @@ import face_recognition
 import os
 
 def check_name():
+	
 	if name_Entry.get() in known_face_names:
 		msg.showerror("에러", "이미 있는 이름입니다.")
 		name_Entry.delete(0, END)
 	else:
 		msg.showinfo("확인", name_Entry.get() + ' 이(는) 사용가능한 이름입니다.')
 
-def time_count_plus():
-	global time_count
-
-	time_count += 1
-
 window = Tk()
 window.title("Face_Recogniser")
 window.geometry('600x400')
-
 
 # 실행시 전체화면으로 실행
 # F11을 통해 전체화면 제어
@@ -66,8 +61,6 @@ def show_frame():
 def no_fnc():
 	pass
 
-time_count = 0
-
 # 샘플
 #gbs_image = face_recognition.load_image_file("./faceimg/GBS_02.jpg")
 #gbs_face_encoding = face_recognition.face_encodings(gbs_image)[0]
@@ -96,10 +89,8 @@ for file in encoding_file_list:
 		known_face_encodings.append(np.array(new_lst))
 
 
-
 d_name = 'null'
 def detect():
-
 	global d_name
 	name = d_name
 	
@@ -108,45 +99,41 @@ def detect():
 
 	# Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
 	rgb_frame = frame[:, :, ::-1]
-	#rgb_frame = cv2.resize(rgb_frame, None, fx=0.4, fy=0.4)
+	rgb_frame = cv2.resize(rgb_frame, None, fx=0.4, fy=0.4)
 
 	# Find all the faces and face enqcodings in the frame of video
 	face_locations = face_recognition.face_locations(rgb_frame)
 	face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
 
 	# Loop through each face in this frame of video
-	for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-		# See if the face is a match for the known face(s)
+	for face_encoding in face_encodings:
 		matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
 
 		d_name = "Unknown"
 
 		# If a match was found in known_face_encodings, just use the first one.
-		# if True in matches:
-		#     first_match_index = matches.index(True)
-		#     name = known_face_names[first_match_index]
+		if True in matches:
+			first_match_index = matches.index(True)
+			d_name = known_face_names[first_match_index]
 
 		# Or instead, use the known face with the smallest distance to the new face
-		face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-		best_match_index = np.argmin(face_distances)
-		if matches[best_match_index]:
-			d_name = known_face_names[best_match_index]
-	
+		# face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+		# best_match_index = np.argmin(face_distances)
+		# if matches[best_match_index]:
+		# 	d_name = known_face_names[best_match_index]
+
 	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
 	frame = frame[:, :, ::-1]
 
-	img = cv2.resize(frame, None, fx=0.5, fy=0.5)
-	img = Image.fromarray(frame)
+	img = cv2.resize(frame, None, fx=0.4, fy=0.4)
+	img = Image.fromarray(img)
 	imgtk = ImageTk.PhotoImage(image = img)
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
-
 	detected_name.configure(text=name+"님 반갑습니다.")
 	
-	if name == 'null':
-		webcam_label.after(1000, detect)
+	webcam_label.after(1000, detect)
 
-	else: return
 	
 
 def take_Photo():
