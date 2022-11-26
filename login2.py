@@ -89,10 +89,7 @@ for file in encoding_file_list:
 		known_face_encodings.append(np.array(new_lst))
 
 
-d_name = 'null'
 def detect():
-	global d_name
-	name = d_name
 	
 	# Grab a single frame of video
 	ret, frame = cap.read()
@@ -105,22 +102,24 @@ def detect():
 	face_locations = face_recognition.face_locations(rgb_frame)
 	face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
 
+	name = "Unknown"
+	
 	# Loop through each face in this frame of video
 	for face_encoding in face_encodings:
 		matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
 
-		d_name = "Unknown"
 
 		# If a match was found in known_face_encodings, just use the first one.
-		if True in matches:
-			first_match_index = matches.index(True)
-			d_name = known_face_names[first_match_index]
+		#if True in matches:
+		#	first_match_index = matches.index(True)
+		#	name = known_face_names[first_match_index]
 
 		# Or instead, use the known face with the smallest distance to the new face
-		# face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-		# best_match_index = np.argmin(face_distances)
-		# if matches[best_match_index]:
-		# 	d_name = known_face_names[best_match_index]
+		face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+		best_match_index = np.argmin(face_distances)
+		if matches[best_match_index]:
+			name = known_face_names[best_match_index]
+			detected_name.configure(text=name+"님 반갑습니다.")
 
 	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
 	frame = frame[:, :, ::-1]
@@ -130,7 +129,7 @@ def detect():
 	imgtk = ImageTk.PhotoImage(image = img)
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
-	detected_name.configure(text=name+"님 반갑습니다.")
+	
 	
 	webcam_label.after(1000, detect)
 
