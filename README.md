@@ -9,6 +9,9 @@
 2. 시리얼 통신하기 위해 코드를 작성해주세요.
 3. 코드나 구조도를 그림을 그려주세욥!
 
+# Document
+1. [[Serial 통신을 위한 예제 코드](https://github.com/AnabolicWarriors/raspberry-camera-library/blob/main/document/serial_example.py)]
+
 # Devloper
 1. 곽배섭
 
