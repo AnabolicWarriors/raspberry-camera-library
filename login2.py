@@ -1,12 +1,31 @@
 from tkinter import *
-import numpy as np
 import tkinter.messagebox as msg
 
 import cv2
+import numpy as np
 from PIL import Image, ImageTk
 import face_recognition
 
 import os
+import sys
+
+import serial
+
+
+"""
+"""
+port = "/dev/ttyUSB0"
+baud = 19200
+ser = serial.Serial(port, baud, timeout = 1)
+msg_to_send = '$(failure)@(user_name)#'
+
+
+def send_this(msg):
+	ser.write(msg)
+
+
+def restart():
+    os.execl(sys.executable, sys.executable, *sys.argv)
 
 def check_name():
 	
@@ -58,12 +77,9 @@ def show_frame():
 
 	webcam_label.after(20, show_frame)
 
-def no_fnc():
-	pass
+def restart_():
+	restart()
 
-# 샘플
-#gbs_image = face_recognition.load_image_file("./faceimg/GBS_02.jpg")
-#gbs_face_encoding = face_recognition.face_encodings(gbs_image)[0]
 
 known_face_encodings = [ ]
 known_face_names = [ ]
@@ -91,20 +107,22 @@ for file in encoding_file_list:
 
 def detect():
 	
-	# Grab a single frame of video
+	global msg_to_send
+
+	# 캠 화면에서 하나의 프레임을 뽑아옴
 	ret, frame = cap.read()
 
-	# Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
+	# BGR color(OpenCV 에서 사용) 를 RGB color(face_recognition 에서 사용) 로 변경
 	rgb_frame = frame[:, :, ::-1]
 	rgb_frame = cv2.resize(rgb_frame, None, fx=0.4, fy=0.4)
 
-	# Find all the faces and face enqcodings in the frame of video
+	# 프레임에서 모든 얼굴과 얼굴 인코딩을 찾음
 	face_locations = face_recognition.face_locations(rgb_frame)
 	face_encodings = face_recognition.face_encodings(rgb_frame, face_locations)
 
 	name = "Unknown"
 	
-	# Loop through each face in this frame of video
+	# 비디오 프레임에서 각 얼굴 반복
 	for face_encoding in face_encodings:
 		matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
 
@@ -121,6 +139,11 @@ def detect():
 			name = known_face_names[best_match_index]
 			detected_name.configure(text=name+"님 반갑습니다.")
 
+
+
+
+	"""
+	# 굳이 필요한가?
 	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
 	frame = frame[:, :, ::-1]
 
@@ -129,8 +152,21 @@ def detect():
 	imgtk = ImageTk.PhotoImage(image = img)
 	webcam_label.imgtk = imgtk
 	webcam_label.configure(image=imgtk)
+	"""
 	
-	
+	# 얼굴 인식( 얼굴 위치 파악 )
+	face_location = face_recognition.face_locations(frame)
+
+	# 위치 값이 없으면 => 얼굴이 인식되지 않으면
+	if not face_location:
+		detected_name.configure(text="반갑습니다.")
+		msg_to_send = '$(failure)@(user_name_unknwon)#'
+		send_this(msg_to_send)
+
+	else:
+		msg_to_send = '$(True)@('+ detected_name + ')#'
+		send_this(msg_to_send)
+
 	webcam_label.after(1000, detect)
 
 	
@@ -219,8 +255,8 @@ takeImg = Button(window, text="Camera On",
 					font=('times', 10, ' bold '))
 takeImg.place(x=120, y=300)
 
-trainImg = Button(window, text="No func",
-				     fg="white", bg="green", command=no_fnc,
+trainImg = Button(window, text="Restart",
+				     fg="white", bg="green", command=restart_,
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
 trainImg.place(x=220, y=300)
