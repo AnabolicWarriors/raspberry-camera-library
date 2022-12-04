@@ -37,28 +37,19 @@ def check_name():
 
 window = Tk()
 window.title("Face_Recogniser")
-window.geometry('600x400')
+window.geometry('800x480')
 
 # 실행시 전체화면으로 실행
 # F11을 통해 전체화면 제어
-#window.attributes('-fullscreen', True)
-#window.bind("<F11>", lambda event: window.attributes("-fullscreen", not window.attributes("-fullscreen")))
-#window.bind("<Escape>", lambda event: window.attributes("-fullscreen", False))
+window.attributes('-fullscreen', True)
+window.bind("<F11>", lambda event: window.attributes("-fullscreen", not window.attributes("-fullscreen")))
+window.bind("<Escape>", lambda event: window.attributes("-fullscreen", False))
 
 window.configure(background='white')
 window.grid_rowconfigure(0, weight=1)
 window.grid_columnconfigure(0, weight=1)
 
-# 제목 라벨
-message = Label(
-	window, text="Face Recognition Login",
-	bg="green", fg="white", width=30,
-	height=2, font=('times', 20, 'bold'))
-message.place(x=100, y=20)
 
-# 웹캠
-webcam_label = Label(window, width=300, height=200)
-webcam_label.place(x=200, y=100)
 
 
 cap = cv2.VideoCapture(0)
@@ -67,7 +58,7 @@ def show_frame():
 
 	cv2image = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2RGB)
     
-	cv2image = cv2.resize(cv2image, None, fx=0.4, fy=0.4)
+	cv2image = cv2.resize(cv2image, None, fx=0.6, fy=0.6)
 
 	img = Image.fromarray(cv2image)
 
@@ -139,33 +130,21 @@ def detect():
 			name = known_face_names[best_match_index]
 			detected_name.configure(text=name+"님 반갑습니다.")
 
-
-
-
-	"""
-	# 굳이 필요한가?
-	# BGR to RGB -> 이거 해야 색이 똑바로 나옴
-	frame = frame[:, :, ::-1]
-
-	img = cv2.resize(frame, None, fx=0.4, fy=0.4)
-	img = Image.fromarray(img)
-	imgtk = ImageTk.PhotoImage(image = img)
-	webcam_label.imgtk = imgtk
-	webcam_label.configure(image=imgtk)
-	"""
 	
 	# 얼굴 인식( 얼굴 위치 파악 )
 	face_location = face_recognition.face_locations(frame)
 
 	# 위치 값이 없으면 => 얼굴이 인식되지 않으면
 	if not face_location:
+		msg_to_send = '$true@unkwon@0#'
+		b_msg = bytes(msg_to_send, 'utf-8')
 		detected_name.configure(text="반갑습니다.")
-		msg_to_send = '$(failure)@(user_name_unknwon)#'
-		send_this(msg_to_send)
+		send_this(b_msg)
 
 	else:
-		msg_to_send = '$(True)@('+ detected_name + ')#'
-		send_this(msg_to_send)
+		msg_to_send = '$false@'+ name + '@0#'
+		b_msg = bytes(msg_to_send, 'utf-8')
+		send_this(b_msg)
 
 	webcam_label.after(1000, detect)
 
@@ -209,35 +188,50 @@ def take_Photo():
 	else:
 		msg.showerror("다시 시도해주세요", "얼굴이 2개 이상 인식되거나 에러입니다.")
 
+# 제목 라벨
+message = Label(
+	window, text="Face Recognition Login",
+	bg="green", fg="white", width=30,
+	height=2, font=('times', 20, 'bold'))
+message.place(x=170, y=20)
 
+
+# 웹 캠
+webcam_label = Label(window, width=400, height=300)
+webcam_label.place(x=300, y=100)
+
+
+# 등록부
 name = Label(window, text="Regist",
  			height=2, fg="green",
- 			bg="white", font=('times', 20, ' bold '))
-name.place(x=20, y=60)
+ 			bg="white", font=('times', 25, ' bold '))
+name.place(x=20, y=110)
+
 
 name = Label(window, text="name",
  			height=2, fg="green",
  			bg="white", font=('times', 15, ' bold '))
-name.place(x=20, y=110)
+name.place(x=20, y=190)
+
 
 name_Entry = Entry(window,
  			width=10, bg="white",
  			fg="green", font=('times', 15, ' bold '))
-name_Entry.place(x=20, y=160)
+name_Entry.place(x=20, y=230)
 
 
 name_Check = Button(window, text="check",
 					fg="white", bg="green", command=check_name,
 					width=5, activebackground="Red",
 					font=('times', 10, ' bold '))
-name_Check.place(x=100, y=160)
+name_Check.place(x=120, y=230)
 
 
 
 detected_name = Label(window, text="반갑습니다.",
  			height=3, fg="green",
- 			bg="white", font=('times', 15, ' bold '))
-detected_name.place(x=20, y=200)
+ 			bg="white", font=('times', 20, ' bold '))
+detected_name.place(x=20, y=270)
 
 
 
@@ -246,32 +240,32 @@ takePhoto = Button(window, text="Take photo",
 				   fg="white", bg="green", command=take_Photo,
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
-takePhoto.place(x=20, y=300)
+takePhoto.place(x=140, y=400)
 
 
 takeImg = Button(window, text="Camera On",
 				   fg="white", bg="green", command=show_frame,
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
-takeImg.place(x=120, y=300)
+takeImg.place(x=240, y=400)
 
 trainImg = Button(window, text="Restart",
 				     fg="white", bg="green", command=restart_,
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
-trainImg.place(x=220, y=300)
+trainImg.place(x=340, y=400)
 
 trackImg = Button(window, text="Login",
 				 fg="white", bg="green", command=detect,
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
-trackImg.place(x=320, y=300)
+trackImg.place(x=440, y=400)
 
 quitWindow = Button(window, text="Quit",
 					command=window.destroy, fg="white", bg="green",
 					width=10, height=3, activebackground="Red",
 					font=('times', 10, ' bold '))
-quitWindow.place(x=420, y=300)
+quitWindow.place(x=540, y=400)
 
 
 window.mainloop()
