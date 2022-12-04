@@ -12,16 +12,32 @@ import sys
 import serial
 
 
-"""
-"""
 port = "/dev/ttyUSB0"
 baud = 19200
 ser = serial.Serial(port, baud, timeout = 1)
-msg_to_send = '$(failure)@(user_name)#'
-
 
 def send_this(msg):
 	ser.write(msg)
+
+
+is_inf = False
+msg_to_send = '$(failure)@(user_name)#'
+
+def inf_false(event):
+	global msg_to_send
+	global is_inf
+	
+	is_inf = True
+	msg_to_send = '$false@unknwon@0#'
+
+
+def inf_true(event):
+	global msg_to_send
+	global is_inf
+	
+	is_inf = True
+
+	msg_to_send = '$true@unknwon@1#'
 
 
 def restart():
@@ -50,6 +66,8 @@ window.grid_rowconfigure(0, weight=1)
 window.grid_columnconfigure(0, weight=1)
 
 
+window.bind("<F8>", inf_true)
+window.bind("<F9>", inf_false)
 
 
 cap = cv2.VideoCapture(0)
@@ -130,22 +148,32 @@ def detect():
 			name = known_face_names[best_match_index]
 			detected_name.configure(text=name+"님 반갑습니다.")
 
+
 	
 	# 얼굴 인식( 얼굴 위치 파악 )
 	face_location = face_recognition.face_locations(frame)
 
-	# 위치 값이 없으면 => 얼굴이 인식되지 않으면
-	if not face_location:
-		msg_to_send = '$true@unkwon@0#'
-		b_msg = bytes(msg_to_send, 'utf-8')
-		detected_name.configure(text="반갑습니다.")
-		send_this(b_msg)
 
-	else:
-		msg_to_send = '$false@'+ name + '@0#'
+	if not is_inf:
+
+		# 위치 값이 없으면 => 얼굴이 인식되지 않으면
+		if not face_location:
+			msg_to_send = '$true@unkwon@1#'
+			b_msg = bytes(msg_to_send, 'utf-8')
+			detected_name.configure(text="반갑습니다.")
+			send_this(b_msg)
+
+		else:
+			msg_to_send = '$false@'+ name + '@0#'
+			b_msg = bytes(msg_to_send, 'utf-8')
+			send_this(b_msg)
+
+	elif is_inf:
 		b_msg = bytes(msg_to_send, 'utf-8')
 		send_this(b_msg)
-
+	
+	
+	#print(msg_to_send)
 	webcam_label.after(1000, detect)
 
 	
